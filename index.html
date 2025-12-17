@@ -110,7 +110,6 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
         }
 
-        /* CD 톤암 (바늘) */
         .tonearm {
             position: absolute;
             width: 4px;
@@ -153,7 +152,6 @@
             transform: rotate(-25deg);
         }
 
-        /* 곡 정보 */
         .song-info {
             text-align: center;
             margin-bottom: 30px;
@@ -170,7 +168,6 @@
             color: #dc143c;
         }
 
-        /* 재생 컨트롤 */
         .controls {
             display: flex;
             justify-content: center;
@@ -209,7 +206,6 @@
             background: linear-gradient(145deg, #ff1744, #dc143c);
         }
 
-        /* 프로그레스 바 */
         .progress-container {
             margin-bottom: 10px;
         }
@@ -235,6 +231,83 @@
             justify-content: space-between;
             font-size: 0.9rem;
             color: #b0b0b0;
+        }
+
+        /* 가사 섹션 */
+        .lyrics-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .lyrics-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 15px;
+        }
+
+        .lyrics-title {
+            font-size: 1.2rem;
+            color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lyrics-toggle {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            color: #dc143c;
+        }
+
+        .lyrics-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .lyrics-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .lyrics-content.open {
+            max-height: 500px;
+        }
+
+        .lyrics-text {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.8;
+            white-space: pre-line;
+            color: #e0e0e0;
+        }
+
+        .lyrics-text::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .lyrics-text::-webkit-scrollbar-track {
+            background: #0a0a0a;
+            border-radius: 3px;
+        }
+
+        .lyrics-text::-webkit-scrollbar-thumb {
+            background: #dc143c;
+            border-radius: 3px;
+        }
+
+        .no-lyrics {
+            color: #b0b0b0;
+            text-align: center;
+            padding: 30px;
+            font-style: italic;
         }
 
         /* 플레이리스트 섹션 */
@@ -337,6 +410,58 @@
             font-size: 0.9rem;
         }
 
+        /* 실험실 섹션 */
+        .lab-section {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #3a3a3a;
+            margin-bottom: 30px;
+        }
+
+        .lab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .lab-header h2 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #dc143c, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lab-toggle {
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .lab-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .lab-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .lab-content.open {
+            max-height: 2000px;
+            margin-top: 20px;
+        }
+
+        .lab-subtitle {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
         @media (max-width: 968px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -353,7 +478,7 @@
     <div class="container">
         <header>
             <h1>🎵 최애곡 아카이브</h1>
-            <p class="subtitle">Made by HASA</p>
+            <p class="subtitle">My Favorite Songs Collection</p>
         </header>
 
         <div class="main-content">
@@ -362,7 +487,7 @@
                 <div class="cd-container">
                     <div class="tonearm" id="tonearm"></div>
                     <div class="cd-disc" id="cdDisc">
-                        <img src="https://via.placeholder.com/300/1a1a1a/dc143c?text=No+Song" alt="Album Cover" class="cd-cover" id="cdCover">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Crect fill='%231a1a1a' width='300' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dc143c' font-size='24'%3ENo Song%3C/text%3E%3C/svg%3E" alt="Album Cover" class="cd-cover" id="cdCover">
                         <div class="cd-center"></div>
                     </div>
                 </div>
@@ -387,6 +512,19 @@
                         <span id="duration">0:00</span>
                     </div>
                 </div>
+
+                <!-- 가사 섹션 -->
+                <div class="lyrics-section" id="lyricsSection" style="display: none;">
+                    <div class="lyrics-header" id="lyricsHeader">
+                        <div class="lyrics-title">📝 가사</div>
+                        <span class="lyrics-toggle" id="lyricsToggle">▼</span>
+                    </div>
+                    <div class="lyrics-content" id="lyricsContent">
+                        <div class="lyrics-text" id="lyricsText">
+                            <div class="no-lyrics">가사가 없습니다.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 플레이리스트 -->
@@ -396,43 +534,113 @@
                 <div class="playlist" id="playlist"></div>
             </div>
         </div>
+
+        <!-- 실험실 섹션 -->
+        <div class="lab-section">
+            <div class="lab-header" id="labHeader">
+                <div>
+                    <h2>🧪 실험실</h2>
+                    <p class="lab-subtitle">작업 중인 곡들 • 후렴만 있는 곡 • 제목 없는 곡</p>
+                </div>
+                <span class="lab-toggle" id="labToggle">▼</span>
+            </div>
+            <div class="lab-content" id="labContent">
+                <div class="playlist" id="labPlaylist"></div>
+            </div>
+        </div>
     </div>
 
     <audio id="audioPlayer"></audio>
 
     <script>
-        // 플레이리스트 데이터 (여기에 당신의 곡들을 추가하세요)
+        // 플레이리스트 데이터
+        // 이미지는 PNG 파일을 같은 폴더에 넣고 경로만 변경하세요
         const songs = [
             {
                 title: "Midnight Dreams",
                 artist: "Your Name",
-                cover: "https://via.placeholder.com/300/2a2a2a/dc143c?text=Song+1",
-                audio: "song1.mp3", // 실제 mp3 파일 경로로 변경
-                duration: "3:45"
+                cover: "covers/song1.png", // 실제 PNG 파일 경로로 변경
+                audio: "audio/song1.mp3",
+                duration: "3:45",
+                lyrics: `어둠 속을 걷는 나
+밤하늘의 별빛 아래
+꿈을 꾸는 순간들
+영원히 기억할게
+
+Midnight dreams
+날 이끄는 빛
+Midnight dreams
+멈추지 않아`
             },
             {
                 title: "Tokyo Lights",
                 artist: "Your Name",
-                cover: "https://via.placeholder.com/300/1f1f1f/ff6b6b?text=Song+2",
-                audio: "song2.mp3",
-                duration: "4:20"
+                cover: "covers/song2.png",
+                audio: "audio/song2.mp3",
+                duration: "4:20",
+                lyrics: `네온 불빛 아래서
+우리 둘만의 시간
+도쿄의 밤은 깊어가고
+추억만 남아
+
+Tokyo lights
+반짝이는 밤
+Tokyo lights
+함께한 우리`
             },
             {
                 title: "Neon City",
                 artist: "Your Name",
-                cover: "https://via.placeholder.com/300/252525/ff1744?text=Song+3",
-                audio: "song3.mp3",
-                duration: "3:15"
-            },
-            {
-                title: "Summer Breeze",
-                artist: "Your Name",
-                cover: "https://via.placeholder.com/300/2d2d2d/dc143c?text=Song+4",
-                audio: "song4.mp3",
-                duration: "4:05"
+                cover: "covers/song3.png",
+                audio: "audio/song3.mp3",
+                duration: "3:15",
+                lyrics: `빛나는 도시 속
+나를 찾아 헤매다
+네온 사인 너머로
+새로운 세상이 보여`
             }
         ];
 
+        // 실험실 곡들
+        const labSongs = [
+            {
+                title: "무제 (Untitled)",
+                artist: "Your Name",
+                cover: "covers/lab1.png",
+                audio: "audio/lab1.mp3",
+                duration: "2:30",
+                isLab: true,
+                lyrics: `아직 제목을 정하지 못한 곡
+하지만 멜로디는 완성됐어
+언젠가 완벽한 이름을 찾을 거야`
+            },
+            {
+                title: "후렴 스케치 #1",
+                artist: "Your Name",
+                cover: "covers/lab2.png",
+                audio: "audio/lab2.mp3",
+                duration: "1:15",
+                isLab: true,
+                lyrics: `[후렴구만 완성]
+
+날아올라 저 하늘 위로
+자유롭게 펼쳐진 날개
+이 순간을 놓치지 않아`
+            },
+            {
+                title: "[작업중] Summer Vibes",
+                artist: "Your Name",
+                cover: "covers/lab3.png",
+                audio: "audio/lab3.mp3",
+                duration: "3:00",
+                isLab: true,
+                lyrics: `여름의 느낌을 담아
+작업 중인 곡입니다
+곧 완성될 예정!`
+            }
+        ];
+
+        const allSongs = [...songs, ...labSongs];
         let currentSongIndex = -1;
         let isPlaying = false;
         let filteredSongs = [...songs];
@@ -451,46 +659,94 @@
         const currentTimeEl = document.getElementById('currentTime');
         const durationEl = document.getElementById('duration');
         const playlist = document.getElementById('playlist');
+        const labPlaylist = document.getElementById('labPlaylist');
         const searchBox = document.getElementById('searchBox');
+        const labHeader = document.getElementById('labHeader');
+        const labToggle = document.getElementById('labToggle');
+        const labContent = document.getElementById('labContent');
+        const lyricsSection = document.getElementById('lyricsSection');
+        const lyricsHeader = document.getElementById('lyricsHeader');
+        const lyricsToggle = document.getElementById('lyricsToggle');
+        const lyricsContent = document.getElementById('lyricsContent');
+        const lyricsText = document.getElementById('lyricsText');
+
+        // 실험실 토글
+        labHeader.addEventListener('click', () => {
+            labContent.classList.toggle('open');
+            labToggle.classList.toggle('open');
+        });
+
+        // 가사 토글
+        lyricsHeader.addEventListener('click', () => {
+            lyricsContent.classList.toggle('open');
+            lyricsToggle.classList.toggle('open');
+        });
 
         // 플레이리스트 렌더링
         function renderPlaylist() {
             playlist.innerHTML = '';
-            filteredSongs.forEach((song, index) => {
-                const songItem = document.createElement('div');
-                songItem.className = 'song-item';
-                if (songs.indexOf(song) === currentSongIndex) {
-                    songItem.classList.add('active');
-                }
-                songItem.innerHTML = `
-                    <img src="${song.cover}" alt="${song.title}">
-                    <div class="song-details">
-                        <div class="song-item-title">${song.title}</div>
-                        <div class="song-item-artist">${song.artist}</div>
-                    </div>
-                    <div class="song-duration">${song.duration}</div>
-                `;
-                songItem.addEventListener('click', () => {
-                    loadSong(songs.indexOf(song));
-                    playSong();
-                });
+            filteredSongs.forEach((song) => {
+                const songItem = createSongItem(song, allSongs.indexOf(song));
                 playlist.appendChild(songItem);
             });
         }
 
+        // 실험실 플레이리스트 렌더링
+        function renderLabPlaylist() {
+            labPlaylist.innerHTML = '';
+            labSongs.forEach((song) => {
+                const songItem = createSongItem(song, allSongs.indexOf(song));
+                labPlaylist.appendChild(songItem);
+            });
+        }
+
+        // 곡 아이템 생성
+        function createSongItem(song, index) {
+            const songItem = document.createElement('div');
+            songItem.className = 'song-item';
+            if (index === currentSongIndex) {
+                songItem.classList.add('active');
+            }
+            songItem.innerHTML = `
+                <img src="${song.cover}" alt="${song.title}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Crect fill=%27%231a1a1a%27 width=%27100%27 height=%27100%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23dc143c%27 font-size=%2712%27%3E?%3C/text%3E%3C/svg%3E'">
+                <div class="song-details">
+                    <div class="song-item-title">${song.title}</div>
+                    <div class="song-item-artist">${song.artist}</div>
+                </div>
+                <div class="song-duration">${song.duration}</div>
+            `;
+            songItem.addEventListener('click', () => {
+                loadSong(index);
+                playSong();
+            });
+            return songItem;
+        }
+
         // 곡 로드
         function loadSong(index) {
-            if (index < 0 || index >= songs.length) return;
+            if (index < 0 || index >= allSongs.length) return;
             
             currentSongIndex = index;
-            const song = songs[index];
+            const song = allSongs[index];
             
             audioPlayer.src = song.audio;
             cdCover.src = song.cover;
+            cdCover.onerror = () => {
+                cdCover.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Crect fill='%231a1a1a' width='300' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23dc143c' font-size='24'%3E?%3C/text%3E%3C/svg%3E";
+            };
             currentTitle.textContent = song.title;
             currentArtist.textContent = song.artist;
             
             renderPlaylist();
+            renderLabPlaylist();
+            
+            // 가사 표시
+            lyricsSection.style.display = 'block';
+            if (song.lyrics) {
+                lyricsText.innerHTML = song.lyrics;
+            } else {
+                lyricsText.innerHTML = '<div class="no-lyrics">가사가 없습니다.</div>';
+            }
         }
 
         // 재생
@@ -500,7 +756,7 @@
             }
             audioPlayer.play();
             isPlaying = true;
-            playBtn.textContent = '⏸';
+            playBtn.textContent = '❚❚';
             cdDisc.classList.add('spinning');
             tonearm.classList.add('playing');
         }
@@ -516,14 +772,14 @@
 
         // 이전 곡
         function prevSong() {
-            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            currentSongIndex = (currentSongIndex - 1 + allSongs.length) % allSongs.length;
             loadSong(currentSongIndex);
             if (isPlaying) playSong();
         }
 
         // 다음 곡
         function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            currentSongIndex = (currentSongIndex + 1) % allSongs.length;
             loadSong(currentSongIndex);
             if (isPlaying) playSong();
         }
@@ -576,6 +832,7 @@
 
         // 초기 렌더링
         renderPlaylist();
+        renderLabPlaylist();
     </script>
 </body>
 </html>
