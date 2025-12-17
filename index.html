@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최애곡 아카이브</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #dc143c, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #b0b0b0;
+            font-size: 1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* CD 플레이어 섹션 */
+        .cd-player {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #3a3a3a;
+        }
+
+        .cd-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .cd-disc {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #3a3a3a, #1a1a1a);
+            box-shadow: 
+                0 0 0 8px #2a2a2a,
+                0 0 0 10px #1a1a1a,
+                0 10px 30px rgba(0, 0, 0, 0.8),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cd-disc.spinning {
+            animation: spin 3s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cd-cover {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .cd-center {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #1a1a1a, #0a0a0a);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
+
+        /* CD 톤암 (바늘) */
+        .tonearm {
+            position: absolute;
+            width: 4px;
+            height: 150px;
+            background: linear-gradient(to bottom, #b0b0b0, #606060);
+            top: -20px;
+            right: 40px;
+            transform-origin: top center;
+            transition: transform 0.5s ease;
+            border-radius: 2px;
+            z-index: 10;
+        }
+
+        .tonearm::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #dc143c;
+            border-radius: 50%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(220, 20, 60, 0.5);
+        }
+
+        .tonearm::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tonearm.playing {
+            transform: rotate(-25deg);
+        }
+
+        /* 곡 정보 */
+        .song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .song-title {
+            font-size: 1.8rem;
+            color: #f5f5f5;
+            margin-bottom: 5px;
+        }
+
+        .song-artist {
+            font-size: 1.2rem;
+            color: #dc143c;
+        }
+
+        /* 재생 컨트롤 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            color: #f5f5f5;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-btn.play {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, #dc143c, #b01030);
+            font-size: 1.5rem;
+        }
+
+        .control-btn.play:hover {
+            background: linear-gradient(145deg, #ff1744, #dc143c);
+        }
+
+        /* 프로그레스 바 */
+        .progress-container {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #2a2a2a;
+            border-radius: 3px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #dc143c, #ff6b6b);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #b0b0b0;
+        }
+
+        /* 플레이리스트 섹션 */
+        .playlist-section {
+            background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #3a3a3a;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid #3a3a3a;
+            background: #1a1a1a;
+            color: #f5f5f5;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #dc143c;
+            box-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
+        }
+
+        .playlist-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #f5f5f5;
+        }
+
+        .playlist {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .playlist::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .playlist::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        .playlist::-webkit-scrollbar-thumb {
+            background: #dc143c;
+            border-radius: 4px;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .song-item:hover {
+            background: #2a2a2a;
+        }
+
+        .song-item.active {
+            background: linear-gradient(135deg, rgba(220, 20, 60, 0.2), rgba(255, 107, 107, 0.1));
+            border: 1px solid rgba(220, 20, 60, 0.3);
+        }
+
+        .song-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .song-details {
+            flex: 1;
+        }
+
+        .song-item-title {
+            font-size: 1rem;
+            color: #f5f5f5;
+            margin-bottom: 3px;
+        }
+
+        .song-item-artist {
+            font-size: 0.85rem;
+            color: #b0b0b0;
+        }
+
+        .song-duration {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .cd-container {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 최애곡 아카이브</h1>
+            <p class="subtitle">My Favorite Songs Collection</p>
+        </header>
+
+        <div class="main-content">
+            <!-- CD 플레이어 -->
+            <div class="cd-player">
+                <div class="cd-container">
+                    <div class="tonearm" id="tonearm"></div>
+                    <div class="cd-disc" id="cdDisc">
+                        <img src="https://via.placeholder.com/300/1a1a1a/dc143c?text=No+Song" alt="Album Cover" class="cd-cover" id="cdCover">
+                        <div class="cd-center"></div>
+                    </div>
+                </div>
+
+                <div class="song-info">
+                    <div class="song-title" id="currentTitle">곡을 선택해주세요</div>
+                    <div class="song-artist" id="currentArtist">-</div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" id="prevBtn">⏮</button>
+                    <button class="control-btn play" id="playBtn">▶</button>
+                    <button class="control-btn" id="nextBtn">⏭</button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="time-info">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 플레이리스트 -->
+            <div class="playlist-section">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 곡 검색...">
+                <h2 class="playlist-title">Playlist</h2>
+                <div class="playlist" id="playlist"></div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        // 플레이리스트 데이터 (여기에 당신의 곡들을 추가하세요)
+        const songs = [
+            {
+                title: "Midnight Dreams",
+                artist: "Your Name",
+                cover: "https://via.placeholder.com/300/2a2a2a/dc143c?text=Song+1",
+                audio: "song1.mp3", // 실제 mp3 파일 경로로 변경
+                duration: "3:45"
+            },
+            {
+                title: "Tokyo Lights",
+                artist: "Your Name",
+                cover: "https://via.placeholder.com/300/1f1f1f/ff6b6b?text=Song+2",
+                audio: "song2.mp3",
+                duration: "4:20"
+            },
+            {
+                title: "Neon City",
+                artist: "Your Name",
+                cover: "https://via.placeholder.com/300/252525/ff1744?text=Song+3",
+                audio: "song3.mp3",
+                duration: "3:15"
+            },
+            {
+                title: "Summer Breeze",
+                artist: "Your Name",
+                cover: "https://via.placeholder.com/300/2d2d2d/dc143c?text=Song+4",
+                audio: "song4.mp3",
+                duration: "4:05"
+            }
+        ];
+
+        let currentSongIndex = -1;
+        let isPlaying = false;
+        let filteredSongs = [...songs];
+
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const cdDisc = document.getElementById('cdDisc');
+        const cdCover = document.getElementById('cdCover');
+        const tonearm = document.getElementById('tonearm');
+        const currentTitle = document.getElementById('currentTitle');
+        const currentArtist = document.getElementById('currentArtist');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const playlist = document.getElementById('playlist');
+        const searchBox = document.getElementById('searchBox');
+
+        // 플레이리스트 렌더링
+        function renderPlaylist() {
+            playlist.innerHTML = '';
+            filteredSongs.forEach((song, index) => {
+                const songItem = document.createElement('div');
+                songItem.className = 'song-item';
+                if (songs.indexOf(song) === currentSongIndex) {
+                    songItem.classList.add('active');
+                }
+                songItem.innerHTML = `
+                    <img src="${song.cover}" alt="${song.title}">
+                    <div class="song-details">
+                        <div class="song-item-title">${song.title}</div>
+                        <div class="song-item-artist">${song.artist}</div>
+                    </div>
+                    <div class="song-duration">${song.duration}</div>
+                `;
+                songItem.addEventListener('click', () => {
+                    loadSong(songs.indexOf(song));
+                    playSong();
+                });
+                playlist.appendChild(songItem);
+            });
+        }
+
+        // 곡 로드
+        function loadSong(index) {
+            if (index < 0 || index >= songs.length) return;
+            
+            currentSongIndex = index;
+            const song = songs[index];
+            
+            audioPlayer.src = song.audio;
+            cdCover.src = song.cover;
+            currentTitle.textContent = song.title;
+            currentArtist.textContent = song.artist;
+            
+            renderPlaylist();
+        }
+
+        // 재생
+        function playSong() {
+            if (currentSongIndex === -1) {
+                loadSong(0);
+            }
+            audioPlayer.play();
+            isPlaying = true;
+            playBtn.textContent = '⏸';
+            cdDisc.classList.add('spinning');
+            tonearm.classList.add('playing');
+        }
+
+        // 일시정지
+        function pauseSong() {
+            audioPlayer.pause();
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            cdDisc.classList.remove('spinning');
+            tonearm.classList.remove('playing');
+        }
+
+        // 이전 곡
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songs.length) % songs.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) playSong();
+        }
+
+        // 다음 곡
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songs.length;
+            loadSong(currentSongIndex);
+            if (isPlaying) playSong();
+        }
+
+        // 시간 포맷
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // 검색
+        searchBox.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredSongs = songs.filter(song => 
+                song.title.toLowerCase().includes(searchTerm) ||
+                song.artist.toLowerCase().includes(searchTerm)
+            );
+            renderPlaylist();
+        });
+
+        // 이벤트 리스너
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) pauseSong();
+            else playSong();
+        });
+
+        prevBtn.addEventListener('click', prevSong);
+        nextBtn.addEventListener('click', nextSong);
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (audioPlayer.duration) {
+                const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progress.style.width = percentage + '%';
+                currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            }
+        });
+
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener('ended', nextSong);
+
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audioPlayer.currentTime = percent * audioPlayer.duration;
+        });
+
+        // 초기 렌더링
+        renderPlaylist();
+    </script>
+</body>
+</html>
