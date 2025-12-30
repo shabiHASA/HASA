@@ -206,6 +206,37 @@
             background: linear-gradient(145deg, #ff1744, #dc143c);
         }
 
+        .extra-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #3a3a3a;
+            background: #2a2a2a;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-btn:hover {
+            background: #3a3a3a;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, rgba(220, 20, 60, 0.3), rgba(255, 107, 107, 0.2));
+            border-color: #dc143c;
+            color: #dc143c;
+        }
+
         .progress-container {
             margin-bottom: 10px;
         }
@@ -503,6 +534,15 @@
                     <button class="control-btn" id="nextBtn">⏭</button>
                 </div>
 
+                <div class="extra-controls">
+                    <button class="toggle-btn" id="repeatBtn">
+                        <span>🔁</span>
+                    </button>
+                    <button class="toggle-btn" id="shuffleBtn">
+                        <span>🔀</span>
+                    </button>
+                </div>
+
                 <div class="progress-container">
                     <div class="progress-bar" id="progressBar">
                         <div class="progress" id="progress"></div>
@@ -554,7 +594,6 @@
 
     <script>
         // 플레이리스트 데이터
-        // 이미지는 PNG 파일을 같은 폴더에 넣고 경로만 변경하세요
         const songs = [
             {
                 title: "들어와 보이스룸",
@@ -623,7 +662,7 @@
             {
                 title: "오리진 디스곡",
                 artist: "bluexity",
-                cover: "covers/song1.png", // 실제 PNG 파일 경로로 변경
+                cover: "covers/song1.png",
                 audio: "오리진디스곡.mp3",
                 duration: "3:43",
                 lyrics: `Ay yo 요즘 오리진이 기어오른다매?
@@ -1131,6 +1170,8 @@ BLUE BLUE BLUE BLUE BLUE CITY`
         let currentSongIndex = -1;
         let isPlaying = false;
         let filteredSongs = [...songs];
+        let isRepeat = false;
+        let isShuffle = false;
 
         const audioPlayer = document.getElementById('audioPlayer');
         const playBtn = document.getElementById('playBtn');
@@ -1156,6 +1197,8 @@ BLUE BLUE BLUE BLUE BLUE CITY`
         const lyricsToggle = document.getElementById('lyricsToggle');
         const lyricsContent = document.getElementById('lyricsContent');
         const lyricsText = document.getElementById('lyricsText');
+        const repeatBtn = document.getElementById('repeatBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
 
         // 실험실 토글
         labHeader.addEventListener('click', () => {
@@ -1266,7 +1309,13 @@ BLUE BLUE BLUE BLUE BLUE CITY`
 
         // 다음 곡
         function nextSong() {
-            currentSongIndex = (currentSongIndex + 1) % allSongs.length;
+            if (isShuffle) {
+                // 셔플 모드: 랜덤하게 다음 곡 선택
+                const randomIndex = Math.floor(Math.random() * allSongs.length);
+                currentSongIndex = randomIndex;
+            } else {
+                currentSongIndex = (currentSongIndex + 1) % allSongs.length;
+            }
             loadSong(currentSongIndex);
             if (isPlaying) playSong();
         }
@@ -1309,12 +1358,30 @@ BLUE BLUE BLUE BLUE BLUE CITY`
             durationEl.textContent = formatTime(audioPlayer.duration);
         });
 
-        audioPlayer.addEventListener('ended', nextSong);
+        audioPlayer.addEventListener('ended', () => {
+            if (isRepeat) {
+                nextSong();
+            } else {
+                pauseSong();
+            }
+        });
 
         progressBar.addEventListener('click', (e) => {
             const rect = progressBar.getBoundingClientRect();
             const percent = (e.clientX - rect.left) / rect.width;
             audioPlayer.currentTime = percent * audioPlayer.duration;
+        });
+
+        // 연속재생 토글
+        repeatBtn.addEventListener('click', () => {
+            isRepeat = !isRepeat;
+            repeatBtn.classList.toggle('active');
+        });
+
+        // 셔플 토글
+        shuffleBtn.addEventListener('click', () => {
+            isShuffle = !isShuffle;
+            shuffleBtn.classList.toggle('active');
         });
 
         // 초기 렌더링
