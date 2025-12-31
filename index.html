@@ -536,10 +536,12 @@
 
                 <div class="extra-controls">
                     <button class="toggle-btn" id="repeatBtn">
-                        <span>↻</span>
+                        <span>🔁</span>
+                        <span>연속재생</span>
                     </button>
                     <button class="toggle-btn" id="shuffleBtn">
-                        <span>⇄</span>
+                        <span>🔀</span>
+                        <span>셔플</span>
                     </button>
                 </div>
 
@@ -1308,17 +1310,20 @@ BLUE BLUE BLUE BLUE BLUE CITY`
         }
 
         // 다음 곡
-        function nextSong() {
-            if (isShuffle) {
-                // 셔플 모드: 랜덤하게 다음 곡 선택
-                const randomIndex = Math.floor(Math.random() * allSongs.length);
-                currentSongIndex = randomIndex;
-            } else {
-                currentSongIndex = (currentSongIndex + 1) % allSongs.length;
-            }
-            loadSong(currentSongIndex);
-            if (isPlaying) playSong();
+    function nextSong() {
+        if (isShuffle) {
+            // 셔플 모드: 현재 곡을 제외한 랜덤 곡 선택
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * allSongs.length);
+            } while (randomIndex === currentSongIndex && allSongs.length > 1);
+            currentSongIndex = randomIndex;
+        } else {
+            currentSongIndex = (currentSongIndex + 1) % allSongs.length;
         }
+        loadSong(currentSongIndex);
+        if (isPlaying) playSong();
+    }
 
         // 시간 포맷
         function formatTime(seconds) {
@@ -1359,12 +1364,15 @@ BLUE BLUE BLUE BLUE BLUE CITY`
         });
 
         audioPlayer.addEventListener('ended', () => {
-            if (isRepeat) {
-                nextSong();
-            } else {
-                pauseSong();
-            }
-        });
+        if (isRepeat) {
+            // 연속재생: 같은 곡 다시 재생
+            audioPlayer.currentTime = 0;
+            playSong();
+        } else {
+            // 일반 모드 또는 셔플: 다음 곡으로
+            nextSong();
+        }
+    });
 
         progressBar.addEventListener('click', (e) => {
             const rect = progressBar.getBoundingClientRect();
@@ -1373,16 +1381,28 @@ BLUE BLUE BLUE BLUE BLUE CITY`
         });
 
         // 연속재생 토글
-        repeatBtn.addEventListener('click', () => {
-            isRepeat = !isRepeat;
-            repeatBtn.classList.toggle('active');
-        });
+    repeatBtn.addEventListener('click', () => {
+        isRepeat = !isRepeat;
+        repeatBtn.classList.toggle('active');
+    
+        // 연속재생 활성화 시 셔플 비활성화
+        if (isRepeat && isShuffle) {
+            isShuffle = false;
+            shuffleBtn.classList.remove('active');
+        }
+    });
 
-        // 셔플 토글
-        shuffleBtn.addEventListener('click', () => {
-            isShuffle = !isShuffle;
-            shuffleBtn.classList.toggle('active');
-        });
+    // 셔플 토글
+    shuffleBtn.addEventListener('click', () => {
+        isShuffle = !isShuffle;
+        shuffleBtn.classList.toggle('active');
+    
+        // 셔플 활성화 시 연속재생 비활성화
+        if (isShuffle && isRepeat) {
+            isRepeat = false;
+            repeatBtn.classList.remove('active');
+        }
+    });
 
         // 초기 렌더링
         renderPlaylist();
