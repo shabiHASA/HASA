@@ -154,7 +154,7 @@ const songs = [
   {
     title: "지려버린건 설사",
     artist: "shabi",
-    cover: "file_000000009efc7206bd64e97888dcb7f1.png",
+    cover: "지린샤비.png",
     audio: "지려버린건 설사.mp3",
     duration: "1:29",
     lyrics: `지려버린건 설사
