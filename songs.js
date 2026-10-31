@@ -67,7 +67,7 @@ const songs = [
   {
     title: "해피고럭키! 히키정병폐급수용소♡",
     artist: "shabi",
-    cover: "file_000000009efc7206bd64e97888dcb7f1.png",
+    cover: "1793467330174.png",
     audio: "해피고럭키! 히키정병폐급수용소♡.mp3",
     duration: "3:07",
     lyrics: "내 이름은 김지원. 무직 무스펙 연애 및 성경험 0회.
