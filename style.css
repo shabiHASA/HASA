@@ -552,3 +552,45 @@ input[type=range]::-moz-range-thumb {
   .disc, .eq i, .marquee.on > span { animation: none !important; }
   .disc-slot, .collapse, .viewer figure { transition: none; }
 }
+
+/* ───────── Secret track ───────── */
+.lcd.glitch { animation: lcd-glitch .18s steps(2) infinite; }
+.lcd.glitch::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 1;
+  background: repeating-linear-gradient(0deg, rgba(255,64,98,.35) 0 2px, transparent 2px 7px);
+  mix-blend-mode: screen;
+  animation: lcd-noise .12s steps(3) infinite;
+  pointer-events: none;
+}
+.lcd.glitch .lcd-title, .lcd.glitch .lcd-artist { animation: lcd-tear .25s steps(2) infinite; }
+@keyframes lcd-glitch {
+  0%   { transform: translate(0, 0);    filter: hue-rotate(0deg) contrast(1); }
+  50%  { transform: translate(-3px, 1px); filter: hue-rotate(-25deg) contrast(1.6) brightness(1.4); }
+  100% { transform: translate(2px, -1px); filter: hue-rotate(15deg) contrast(1.2); }
+}
+@keyframes lcd-noise { 0% { transform: translateY(0); } 100% { transform: translateY(7px); } }
+@keyframes lcd-tear {
+  0%   { transform: translateX(0);    text-shadow: 2px 0 #00e5ff, -2px 0 var(--crimson-hi); }
+  100% { transform: translateX(-4px); text-shadow: -3px 0 #00e5ff, 3px 0 var(--crimson-hi); }
+}
+.song-item.secret {
+  margin-top: 8px;
+  background: linear-gradient(90deg, rgba(255,64,98,.14), rgba(255,64,98,.02));
+  box-shadow: inset 0 0 0 1px rgba(255,64,98,.4), 0 0 18px rgba(215,20,58,.18);
+  animation: secret-in .7s ease-out;
+}
+.song-item.secret .trk { color: var(--crimson-hi); text-shadow: 0 0 8px var(--crimson-hi); }
+.song-item.secret img { box-shadow: 0 0 0 1px var(--crimson-hi), 0 0 12px rgba(255,64,98,.5); }
+.secret-badge {
+  font-family: var(--lcd);
+  font-size: .85rem;
+  letter-spacing: .08em;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: linear-gradient(180deg, #ff2c52, #8e0d26);
+  box-shadow: 0 0 8px rgba(255,64,98,.6);
+}
+@keyframes secret-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .lcd.glitch, .lcd.glitch::before, .lcd.glitch .lcd-title, .lcd.glitch .lcd-artist, .song-item.secret { animation: none; } }
