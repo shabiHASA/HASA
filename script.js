@@ -25,6 +25,12 @@ const store = {
 };
 let liked = new Set(store.get('liked', []));
 
+// 시크릿 트랙: 한 번 해금하면 그 브라우저에선 계속 보여요
+const hasSecrets = typeof secretSongs !== 'undefined' && secretSongs.length > 0;
+if (hasSecrets) secretSongs.forEach(s => s.secret = true);
+let secretUnlocked = hasSecrets && store.get('secret', false);
+if (secretUnlocked) songs.push(...secretSongs);
+
 const FALLBACK_COVER = "data:image/svg+xml," + encodeURIComponent(
   `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'>
     <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#3a0814'/><stop offset='1' stop-color='#0a0a0c'/></linearGradient></defs>
@@ -59,10 +65,10 @@ function setMarquee(el, text) {
 function createSongItem(song, index) {
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'song-item' + (index === currentSongIndex ? ' active' : '');
+  btn.className = 'song-item' + (index === currentSongIndex ? ' active' : '') + (song.secret ? ' secret' : '');
 
   const trk = document.createElement('span');
-  trk.className = 'trk'; trk.textContent = pad(index + 1);
+  trk.className = 'trk'; trk.textContent = song.secret ? '✦' : pad(index + 1);
 
   const img = document.createElement('img');
   img.alt = ''; img.loading = 'lazy';
@@ -80,6 +86,7 @@ function createSongItem(song, index) {
   side.className = 'song-side';
   const d = document.createElement('span');
   d.className = 'song-duration'; d.textContent = song.duration || '';
+  if (song.secret) side.insertAdjacentHTML('beforeend', '<span class="secret-badge">SECRET</span>');
   side.appendChild(d);
   if (liked.has(song.title)) {
     side.insertAdjacentHTML('beforeend', '<svg class="liked-mark" viewBox="0 0 24 24" aria-label="좋아요한 곡"><path d="M12 21l-1.5-1.3C5.4 15.1 2 12.1 2 8.4 2 5.4 4.4 3 7.4 3c1.7 0 3.4.8 4.6 2.1C13.2 3.8 14.9 3 16.6 3 19.6 3 22 5.4 22 8.4c0 3.7-3.4 6.7-8.5 11.3L12 21z"/></svg>');
@@ -140,7 +147,7 @@ function loadSong(index, { resumeAt = 0 } = {}) {
 
   setMarquee(titleEl, song.title);
   setMarquee(artistEl, song.artist);
-  trackNo.textContent = `TRK ${pad(index + 1)}/${pad(songs.length)}`;
+  updateTrackNo();
   progress.style.width = '0%';
   curTimeEl.textContent = '0:00';
   durEl.textContent = song.duration || '0:00';
@@ -154,6 +161,44 @@ function loadSong(index, { resumeAt = 0 } = {}) {
   updateMediaSession(song);
   store.set('last', { index, time: resumeAt });
   renderPlaylist();
+}
+
+function updateTrackNo() {
+  if (currentSongIndex === -1) return;
+  trackNo.textContent = songs[currentSongIndex].secret
+    ? 'TRK ✦SECRET✦'
+    : `TRK ${pad(currentSongIndex + 1)}/${pad(songs.length)}`;
+}
+
+// ── 시크릿 해금: 원곡(unlockAfter)을 끝까지 들으면 LCD가 깨지면서 리믹스로 넘어감
+function hiddenAfter(song) {
+  if (!hasSecrets || secretUnlocked || !song) return null;
+  return secretSongs.find(s => s.unlockAfter === song.title) || null;
+}
+function unlockSecret(secret) {
+  secretUnlocked = true;
+  store.set('secret', true);
+  const lcd = document.querySelector('.lcd');
+  deck.classList.remove('is-playing');
+  lcd.classList.add('glitch');
+  trackNo.textContent = 'TRK ??/??';
+  setMarquee(titleEl, '▓▒░ S1GNAL L0ST ░▒▓');
+  setMarquee(artistEl, '...');
+  setTimeout(() => {
+    lcd.classList.remove('glitch');
+    songs.push(...secretSongs);
+    if (view !== 'all' || searchTerm) {
+      view = 'all'; searchTerm = ''; $('searchBox').value = '';
+      document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.view === 'all'));
+    }
+    loadSong(songs.indexOf(secret));
+    playSong();
+    toast('✦ 시크릿 트랙을 찾았어요 ✦');
+    setTimeout(() => {
+      const item = playlistEl.querySelector('.song-item.secret.active');
+      if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 400);
+  }, 2200);
 }
 
 // ── 재생 제어
@@ -222,6 +267,8 @@ audio.addEventListener('timeupdate', () => {
 });
 audio.addEventListener('loadedmetadata', () => { durEl.textContent = formatTime(audio.duration); });
 audio.addEventListener('ended', () => {
+  const secret = hiddenAfter(songs[currentSongIndex]);
+  if (secret) return unlockSecret(secret);
   if (isRepeat) { audio.currentTime = 0; playSong(); }
   else nextSong();
 });
